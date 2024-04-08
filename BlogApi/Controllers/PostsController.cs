@@ -1,3 +1,4 @@
+using Api_blog.Context;
 using Api_blog.Repositório;
 using BlogApi.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -11,8 +12,6 @@ namespace Api_blog.Controllers
     {
 
         private readonly IBlogRepository _repositorio;
-
-        
         public PostsController(IBlogRepository repositorio)
         {
             _repositorio = repositorio;
@@ -65,7 +64,7 @@ namespace Api_blog.Controllers
         }
 
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdatePost([FromBody] Post post, [FromRoute] string Id)
+        public async Task<IActionResult> UpdatePost([FromBody] PostEntitie post, [FromRoute] string Id)
         {
 
             var result = await _repositorio.Update(post, Id);

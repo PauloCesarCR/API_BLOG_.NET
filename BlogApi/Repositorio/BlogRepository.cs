@@ -1,4 +1,5 @@
 ﻿using Api_blog.Context;
+using AutoMapper;
 using BlogApi.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,7 @@ namespace Api_blog.Repositório
         public Task<bool> Create(PostEntitie post);
         public Task <Post> GetById(string Id);
         public Task<List<Post>> GetAllPosts();
-        public Task<bool> Update(Post post, string Id);
+        public Task<bool> Update(PostEntitie post, string Id);
         public bool Delete(string id);
     }
 
@@ -18,10 +19,11 @@ namespace Api_blog.Repositório
     {
 
         private readonly BloggingContext _bancocontext;
-
-        public BlogRepository(BloggingContext bancocontext)
+        private readonly IMapper _mapper;
+        public BlogRepository(BloggingContext bancocontext, IMapper mapper)
         {
             _bancocontext = bancocontext;
+            _mapper = mapper;
         }
 
 
@@ -39,14 +41,14 @@ namespace Api_blog.Repositório
         {
             try
             {
-                string base64String = ConvertIFormFileToBase64(post.Image);
+               
 
                 var newPost = new Post()
                 {
                     Title = post.Title,
                     Type = post.Type,
                     Description = post.Description,
-                    Image = base64String,
+                    Image = post.Image,
                     DescriptionImage = post.DescriptionImage
                 };
                 await _bancocontext.Posts.AddAsync(newPost);
@@ -71,20 +73,19 @@ namespace Api_blog.Repositório
             return posts;
         }
 
-        public async Task<bool> Update(Post post, string Id)
+        public async Task<bool> Update(PostEntitie post, string Id)
         {
-            Console.WriteLine(Id);
             try
             {
-                var postAtual = await _bancocontext.Posts.FindAsync(Id);
+                Post postAtual = await _bancocontext.Posts.FindAsync(Id);
 
-                postAtual.Title = post.Title;
-                postAtual.Type = post.Type;
-                postAtual.Description = post.Description;
-                postAtual.Image = post.Image;
-                postAtual.DescriptionImage = post.DescriptionImage;
-            
+                if (postAtual == null)
+                {
+                    return false;
+                }
 
+                postAtual = _mapper.Map<PostEntitie, Post>(post,postAtual);
+       
                 await _bancocontext.SaveChangesAsync();
 
                 return true;

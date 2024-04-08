@@ -8,6 +8,8 @@ using System.Reflection.Metadata;
 using Npgsql;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Microsoft.Extensions.Configuration;
+using AutoMapper;
+using BlogApi.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,15 @@ builder.Services.AddDbContext<BloggingContext>(
 
 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 
+var mappingConfig = new MapperConfiguration(mc =>
+{
+    mc.AddProfile(new MapPostProfile());
+});
+
+IMapper mapper = mappingConfig.CreateMapper();
+
+builder.Services.AddSingleton(mapper);
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "API DO BLOG", Version = "v1" });
@@ -30,7 +41,10 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
+
+
 
 
 app.UseSwagger();
